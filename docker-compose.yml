@@ -1,0 +1,17 @@
+version: '3.6'
+
+services:
+    database:
+        restart: always
+        image: mysql:8.0
+        ports:
+            - "3310:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: '123456'
+        volumes:
+            - mysql-data:/var/lib/mysql
+            # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+            # - ./docker/db/data:/var/lib/postgresql/data:rw
+
+volumes:
+    mysql-data:
