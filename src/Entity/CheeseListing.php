@@ -22,6 +22,9 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
     collectionOperations: ['get', 'post'],
     itemOperations: ['get' => [], 'put', 'patch'],
     shortName: 'cheeses',
+    attributes: [
+        'pagination_items_per_page' => 10,
+    ],
     denormalizationContext: [
         'groups' => [
             'cheese_listing:write',
