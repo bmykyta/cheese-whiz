@@ -1,6 +1,31 @@
 version: '3.6'
 
 services:
+    nginx:
+        image: nginx
+        volumes:
+            - ./:/var/www/html
+            - .docker/nginx/vhosts/default.conf:/etc/nginx/conf.d/default.conf
+        ports:
+            - "8000:80"
+        networks:
+            dev-env:
+                ipv4_address: 192.168.200.4
+        depends_on:
+            - php-fpm
+
+    php-fpm:
+        build: .docker/php-fpm
+        environment:
+            PHP_IDE_CONFIG: serverName=192.168.200.4
+            APP_ENV: dev
+        volumes:
+            - ./:/var/www/html
+            - .docker/php-fpm/php.ini:/usr/local/etc/php/php.ini:ro
+        networks:
+            dev-env:
+                ipv4_address: 192.168.200.5
+
     database:
         restart: always
         image: mysql:8.0
@@ -12,6 +37,17 @@ services:
             - mysql-data:/var/lib/mysql
             # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
             # - ./docker/db/data:/var/lib/postgresql/data:rw
+        networks:
+            dev-env:
+                ipv4_address: 192.168.200.6
 
 volumes:
     mysql-data:
+
+networks:
+    dev-env:
+        name: dev-cheese-whiz-env
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 192.168.200.0/24
