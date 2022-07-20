@@ -2,7 +2,13 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Common\Filter\SearchFilterInterface;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Repository\CheeseListingRepository;
 use Carbon\Carbon;
 use DateTimeInterface;
@@ -27,8 +33,17 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
         ],
     ]
 )]
+#[ApiFilter(BooleanFilter::class, properties: ['isPublished'])]
+#[ApiFilter(SearchFilter::class, properties: [
+    'title'       => SearchFilterInterface::STRATEGY_PARTIAL,
+    'description' => SearchFilterInterface::STRATEGY_PARTIAL,
+])]
+#[ApiFilter(RangeFilter::class, properties: ['price'])]
+#[ApiFilter(PropertyFilter::class)]
 class CheeseListing
 {
+    private const DESCRIPTION_TEXT_LIMIT = 40;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column()]
@@ -71,16 +86,19 @@ class CheeseListing
         return $this->title;
     }
 
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
+    }
+
+    #[Groups(['cheese_listing:read'])]
+    public function getShortDescription(): ?string
+    {
+        if (strlen($this->description) < self::DESCRIPTION_TEXT_LIMIT) {
+            return $this->description;
+        }
+
+        return substr(strip_tags($this->description), 0, self::DESCRIPTION_TEXT_LIMIT) . '...';
     }
 
     public function setDescription(string $description): self
