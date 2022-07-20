@@ -8,12 +8,24 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ORM\Entity(repositoryClass: CheeseListingRepository::class)]
 #[ApiResource(
     collectionOperations: ['get', 'post'],
     itemOperations: ['get' => [], 'put', 'patch'],
-    shortName: 'cheeses'
+    shortName: 'cheeses',
+    denormalizationContext: [
+        'groups' => [
+            'cheese_listing:write',
+        ],
+    ],
+    normalizationContext: [
+        'groups' => [
+            'cheese_listing:read',
+        ],
+    ]
 )]
 class CheeseListing
 {
@@ -23,26 +35,30 @@ class CheeseListing
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $title = null;
+    #[Groups(['cheese_listing:read', 'cheese_listing:write'])]
+    private ?string $title;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['cheese_listing:read'])]
     private ?string $description = null;
 
     /**
      * The price of this delicious cheese, in cents.
      */
     #[ORM\Column]
+    #[Groups(['cheese_listing:read', 'cheese_listing:write'])]
     private ?int $price = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?DateTimeInterface $createdAt = null;
+    private ?DateTimeInterface $createdAt;
 
     #[ORM\Column]
-    private ?bool $isPublished = null;
+    private bool $isPublished = false;
 
-    public function __construct()
+    public function __construct(string $title = null)
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->title     = $title;
     }
 
     public function getId(): ?int
@@ -67,6 +83,18 @@ class CheeseListing
         return $this->description;
     }
 
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * The description of the cheese ar raw text.
+     */
+    #[Groups(['cheese_listing:write'])]
+    #[SerializedName('description')]
     public function setTextDescription(string $description): self
     {
         $this->description = nl2br($description);
@@ -91,12 +119,16 @@ class CheeseListing
         return $this->createdAt;
     }
 
+    /**
+     * How long ago in text that this cheese listing was added.
+     */
+    #[Groups(['cheese_listing:read'])]
     public function getCreatedAtAgo(): string
     {
         return Carbon::instance($this->createdAt)->diffForHumans();
     }
 
-    public function isIsPublished(): ?bool
+    public function isIsPublished(): bool
     {
         return $this->isPublished;
     }
