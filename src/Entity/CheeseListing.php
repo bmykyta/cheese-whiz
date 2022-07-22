@@ -51,8 +51,10 @@ use Symfony\Component\Validator\Constraints\Valid;
 )]
 #[ApiFilter(BooleanFilter::class, properties: ['isPublished'])]
 #[ApiFilter(SearchFilter::class, properties: [
-    'title'       => SearchFilterInterface::STRATEGY_PARTIAL,
-    'description' => SearchFilterInterface::STRATEGY_PARTIAL,
+    'title'          => SearchFilterInterface::STRATEGY_PARTIAL,
+    'description'    => SearchFilterInterface::STRATEGY_PARTIAL,
+    'owner'          => SearchFilterInterface::STRATEGY_EXACT,
+    'owner.username' => SearchFilterInterface::STRATEGY_PARTIAL,
 ])]
 #[ApiFilter(RangeFilter::class, properties: ['price'])]
 #[ApiFilter(PropertyFilter::class)]
