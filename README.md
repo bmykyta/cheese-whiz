@@ -2,8 +2,6 @@
 
 ## About the project
 
-___
-
 The project is built on top of the Symfony 6 with API Platform 2.6 bundle. Followed by the tutorial of
 [SymfonyCasts - API Platform: Serious RESTful APIs](https://symfonycasts.com/screencast/api-platform).
 
@@ -14,8 +12,6 @@ The project is built on top of the Symfony 6 with API Platform 2.6 bundle. Follo
 ![OpenAPI3](https://img.shields.io/static/v1?style=for-the-badge&message=OpenAPI%203&color=6BA539&logo=OpenAPI+Initiative&logoColor=FFFFFF&label=)
 
 ## Getting Started
-
-___
 
 ### Prerequisites
 
