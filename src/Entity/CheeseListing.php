@@ -19,11 +19,20 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Valid;
 
 #[ORM\Entity(repositoryClass: CheeseListingRepository::class)]
 #[ApiResource(
     collectionOperations: ['get', 'post'],
-    itemOperations: ['get' => [], 'put', 'patch'],
+    itemOperations: [
+        'get' => [
+            'normalization_context' => [
+                'groups' => ['cheese_listing:read', 'cheese_listing:item:get'],
+            ],
+        ],
+        'put',
+        'patch',
+    ],
     shortName: 'cheeses',
     attributes: [
         'pagination_items_per_page' => 10,
@@ -57,7 +66,7 @@ class CheeseListing
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['cheese_listing:read', 'cheese_listing:write'])]
+    #[Groups(['cheese_listing:read', 'cheese_listing:write', 'user:read', 'user:write'])]
     #[NotBlank]
     #[Length(min: 2, max: 50, maxMessage: 'Describe your cheese in 50 chars or less')]
     private ?string $title;
@@ -71,7 +80,7 @@ class CheeseListing
      * The price of this delicious cheese, in cents.
      */
     #[ORM\Column]
-    #[Groups(['cheese_listing:read', 'cheese_listing:write'])]
+    #[Groups(['cheese_listing:read', 'cheese_listing:write', 'user:read', 'user:write'])]
     #[NotBlank]
     #[GreaterThan(0)]
     private ?int $price = null;
@@ -85,6 +94,7 @@ class CheeseListing
     #[ORM\ManyToOne(inversedBy: 'cheeseListings')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['cheese_listing:read', 'cheese_listing:write'])]
+    #[Valid]
     private ?User $owner = null;
 
     public function __construct(string $title = null)
@@ -128,7 +138,7 @@ class CheeseListing
     /**
      * The description of the cheese ar raw text.
      */
-    #[Groups(['cheese_listing:write'])]
+    #[Groups(['cheese_listing:write', 'user:write'])]
     #[SerializedName('description')]
     public function setTextDescription(string $description): self
     {
