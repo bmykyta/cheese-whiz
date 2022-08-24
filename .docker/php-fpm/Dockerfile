@@ -13,6 +13,11 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libxml2-dev \
     libzip-dev
 
+
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get -y install nodejs
+RUN npm install --global yarn
+
 RUN docker-php-ext-install \
        pdo_mysql \
        zip \
