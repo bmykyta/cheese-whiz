@@ -59,6 +59,9 @@
             return {
                 user: null
             }
+        },
+        mounted() {
+          this.user = window.user;
         }
     }
 </script>
