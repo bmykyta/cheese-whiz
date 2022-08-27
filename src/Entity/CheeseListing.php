@@ -23,14 +23,20 @@ use Symfony\Component\Validator\Constraints\Valid;
 
 #[ORM\Entity(repositoryClass: CheeseListingRepository::class)]
 #[ApiResource(
-    collectionOperations: ['get', 'post'],
+    collectionOperations: [
+        'get',
+        'post' => [
+            'security' => "is_granted('ROLE_USER')"
+        ]
+    ],
     itemOperations: [
         'get' => [
             'normalization_context' => [
                 'groups' => ['cheese_listing:read', 'cheese_listing:item:get'],
             ],
         ],
-        'put',
+        'put' => ['security' => "is_granted('ROLE_USER')"],
+        'delete' => ['security' => "is_granted('ROLE_ADMIN')"],
         'patch',
     ],
     shortName: 'cheeses',
@@ -42,11 +48,13 @@ use Symfony\Component\Validator\Constraints\Valid;
         'groups' => [
             'cheese_listing:write',
         ],
+        'swagger_definition_name' => 'Write'
     ],
     normalizationContext: [
         'groups' => [
             'cheese_listing:read',
         ],
+        'swagger_definition_name' => 'Read'
     ]
 )]
 #[ApiFilter(BooleanFilter::class, properties: ['isPublished'])]
@@ -138,7 +146,7 @@ class CheeseListing
     }
 
     /**
-     * The description of the cheese ar raw text.
+     * The description of the cheese as raw text.
      */
     #[Groups(['cheese_listing:write', 'user:write'])]
     #[SerializedName('description')]
