@@ -24,6 +24,10 @@ use Symfony\Component\Validator\Constraints\Valid;
         'get',
         'post' => [
             'security' => "is_granted('PUBLIC_ACCESS')",
+            'validation_groups' => [
+                'Default',
+                'create',
+            ]
         ]
     ],
     itemOperations: [
@@ -74,8 +78,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[Groups(['user:write'])]
     #[SerializedName('password')]
-    #[NotBlank]
-    private ?string $plainPassword;
+    #[NotBlank(groups: ['create'])]
+    private ?string $plainPassword = null;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Groups(['user:write', 'user:read', 'cheese_listing:item:get'])]
@@ -214,6 +218,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
-
 }
