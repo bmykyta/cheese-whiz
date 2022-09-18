@@ -19,6 +19,21 @@ use Symfony\Component\Validator\Constraints\Valid;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
+    collectionOperations: [
+        'get',
+        'post' => [
+            'security' => "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"
+        ]
+    ],
+    itemOperations: [
+        'get',
+        'put' => [
+            'security' => "is_granted('ROLE_USER') and object == user",
+        ],
+        'delete' => [
+            'security' => "is_granted('ROLE_ADMIN')",
+        ],
+    ],
     denormalizationContext: [
         'groups' => [
             'user:write',
@@ -28,7 +43,8 @@ use Symfony\Component\Validator\Constraints\Valid;
         'groups' => [
             'user:read',
         ],
-    ]
+    ],
+    security: "is_granted('ROLE_USER')"
 )]
 #[UniqueEntity(['username', 'email'])]
 #[ApiFilter(PropertyFilter::class)]
