@@ -13,6 +13,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Valid;
@@ -22,7 +23,7 @@ use Symfony\Component\Validator\Constraints\Valid;
     collectionOperations: [
         'get',
         'post' => [
-            'security' => "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"
+            'security' => "is_granted('PUBLIC_ACCESS')",
         ]
     ],
     itemOperations: [
@@ -70,6 +71,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     #[Groups(['user:write'])]
     private ?string $password = null;
+
+    #[Groups(['user:write'])]
+    #[SerializedName('password')]
+    #[NotBlank]
+    private ?string $plainPassword;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Groups(['user:write', 'user:read', 'cheese_listing:item:get'])]
@@ -152,8 +158,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function eraseCredentials()
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        $this->plainPassword = null;
     }
 
     public function getUsername(): ?string
@@ -197,4 +202,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(string $plainPassword): User
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
+
+
 }
