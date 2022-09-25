@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints\Valid;
     itemOperations: [
         'get' => [
             'normalization_context' => [
-                'groups' => ['cheese_listing:read', 'cheese_listing:item:get'],
+                'groups' => ['cheese:read', 'cheese:item:get'],
             ],
         ],
         'put' => [
@@ -42,22 +42,10 @@ use Symfony\Component\Validator\Constraints\Valid;
         'delete' => ['security' => "is_granted('ROLE_ADMIN')"],
         'patch',
     ],
-    shortName: 'cheeses',
+    shortName: 'cheese',
     attributes: [
         'pagination_items_per_page' => 10,
         'formats'                   => ['jsonld', 'json', 'html', 'jsonhal', 'csv' => 'text/csv'],
-    ],
-    denormalizationContext: [
-        'groups' => [
-            'cheese_listing:write',
-        ],
-        'swagger_definition_name' => 'Write'
-    ],
-    normalizationContext: [
-        'groups' => [
-            'cheese_listing:read',
-        ],
-        'swagger_definition_name' => 'Read'
     ]
 )]
 #[ApiFilter(BooleanFilter::class, properties: ['isPublished'])]
@@ -79,13 +67,13 @@ class CheeseListing
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['cheese_listing:read', 'cheese_listing:write', 'user:read', 'user:write'])]
+    #[Groups(['cheese:read', 'cheese:write', 'user:read', 'user:write'])]
     #[NotBlank]
     #[Length(min: 2, max: 50, maxMessage: 'Describe your cheese in 50 chars or less')]
     private ?string $title;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['cheese_listing:read'])]
+    #[Groups(['cheese:read'])]
     #[NotBlank]
     private ?string $description = null;
 
@@ -93,7 +81,7 @@ class CheeseListing
      * The price of this delicious cheese, in cents.
      */
     #[ORM\Column]
-    #[Groups(['cheese_listing:read', 'cheese_listing:write', 'user:read', 'user:write'])]
+    #[Groups(['cheese:read', 'cheese:write', 'user:read', 'user:write'])]
     #[NotBlank]
     #[GreaterThan(0)]
     private ?int $price = null;
@@ -106,7 +94,7 @@ class CheeseListing
 
     #[ORM\ManyToOne(inversedBy: 'cheeseListings')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['cheese_listing:read', 'cheese_listing:write'])]
+    #[Groups(['cheese:read', 'cheese:write'])]
     #[Valid]
     private ?User $owner = null;
 
@@ -131,7 +119,7 @@ class CheeseListing
         return $this->description;
     }
 
-    #[Groups(['cheese_listing:read'])]
+    #[Groups(['cheese:read'])]
     public function getShortDescription(): ?string
     {
         if (strlen($this->description) < self::DESCRIPTION_TEXT_LIMIT) {
@@ -151,7 +139,7 @@ class CheeseListing
     /**
      * The description of the cheese as raw text.
      */
-    #[Groups(['cheese_listing:write', 'user:write'])]
+    #[Groups(['cheese:write', 'user:write'])]
     #[SerializedName('description')]
     public function setTextDescription(string $description): self
     {
@@ -180,7 +168,7 @@ class CheeseListing
     /**
      * How long ago in text that this cheese listing was added.
      */
-    #[Groups(['cheese_listing:read'])]
+    #[Groups(['cheese:read'])]
     public function getCreatedAtAgo(): string
     {
         return Carbon::instance($this->createdAt)->diffForHumans();

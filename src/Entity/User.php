@@ -83,7 +83,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $plainPassword = null;
 
     #[ORM\Column(length: 255, unique: true)]
-    #[Groups(['user:write', 'user:read', 'cheese_listing:item:get'])]
+    #[Groups(['user:write', 'user:read', 'cheese:item:get'])]
     #[NotBlank]
     private ?string $username = null;
 
