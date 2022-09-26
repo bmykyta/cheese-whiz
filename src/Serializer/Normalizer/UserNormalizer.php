@@ -3,6 +3,7 @@
 namespace App\Serializer\Normalizer;
 
 use App\Entity\User;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
@@ -14,6 +15,10 @@ class UserNormalizer implements NormalizerInterface, CacheableSupportsMethodInte
     use NormalizerAwareTrait;
 
     public const ALREADY_CALLED = 'USER_NORMALIZER_ALREADY_CALLED';
+
+    public function __construct(private readonly Security $security)
+    {
+    }
 
     /**
      * @param User $object
@@ -44,6 +49,6 @@ class UserNormalizer implements NormalizerInterface, CacheableSupportsMethodInte
 
     private function isOwner(User $object): bool
     {
-        return rand(0, 10) > 5;
+        return $this->security->getUser()?->getEmail() === $object->getEmail();
     }
 }
