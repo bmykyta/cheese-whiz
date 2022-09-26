@@ -44,7 +44,7 @@ class UserResourceTest extends CustomApiTestCase
             'username' => 'newcheeseplease'
         ]);
 
-        $em = $this->getEntityManager();
+        $em   = $this->getEntityManager();
         $user = $em->getRepository(User::class)->find($user->getId());
         $this->assertEquals(['ROLE_USER'], $user->getRoles());
     }
@@ -52,7 +52,8 @@ class UserResourceTest extends CustomApiTestCase
     public function testGetUser()
     {
         $client = self::createClient();
-        $user   = $this->createUserAndLogIn($client, 'cheeseplease@example.com', 'foo');
+        $user   = $this->createUser('cheeseplease@example.com', 'foo');
+        $this->createUserAndLogIn($client, 'authenticated@example,com', 'foo');
         $phoneNumber = '380671234567';
         $user->setPhoneNumber($phoneNumber);
         $em = $this->getEntityManager();
