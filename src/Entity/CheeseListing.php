@@ -10,6 +10,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Repository\CheeseListingRepository;
+use App\Validator\IsValidOwner;
 use Carbon\Carbon;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
@@ -19,7 +20,6 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Valid;
 
 #[ORM\Entity(repositoryClass: CheeseListingRepository::class)]
 #[ApiResource(
@@ -94,8 +94,9 @@ class CheeseListing
 
     #[ORM\ManyToOne(inversedBy: 'cheeseListings')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['cheese:read', 'cheese:write'])]
-    #[Valid]
+    #[Groups(['cheese:read', 'cheese:collection:post'])]
+    #[IsValidOwner]
+    #[NotBlank]
     private ?User $owner = null;
 
     public function __construct(string $title = null)
