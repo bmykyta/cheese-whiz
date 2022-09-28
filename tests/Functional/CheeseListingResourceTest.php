@@ -48,7 +48,7 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $user2 = $this->createUser('user2@example.com', 'foo');
 
         $cheeseListing = new CheeseListing('Block of cheddar');
-        $cheeseListing->setOwner($user1)->setPrice(1000)->setDescription('mmm');
+        $cheeseListing->setOwner($user1)->setPrice(1000)->setDescription('mmm')->setIsPublished(true);
 
         $em = $this->getEntityManager();
         $em->persist($cheeseListing);
@@ -58,7 +58,7 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $client->request('PUT', '/api/cheeses/' . $cheeseListing->getId(), [
            'json' => ['title' => 'updated', 'owner' => '/api/users/'.$user2->getId()]
         ]);
-        $this->assertResponseStatusCodeSame(403, 'only author can updated');
+        $this->assertResponseStatusCodeSame(403, 'Only author can update.');
 
         $this->logIn($client, $user1->getEmail(), 'foo');
         $client->request('PUT', '/api/cheeses/' . $cheeseListing->getId(), [
@@ -96,7 +96,7 @@ class CheeseListingResourceTest extends CustomApiTestCase
     {
         $client = static::createClient();
 
-        $user = $this->createUser('user@example.com', 'foo');
+        $user = $this->createUserAndLogIn($client, 'user@example.com', 'foo');
 
         $cheeseListing = new CheeseListing('Block of cheddar');
         $cheeseListing->setOwner($user)->setPrice(1000)->setDescription('cheddar')->setIsPublished(false);
@@ -106,6 +106,10 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $em->flush();
 
         $client->request('GET', '/api/cheeses/'.$cheeseListing->getId());
-        $this->assertResponseStatusCodeSame(404);
+        $this->assertResponseStatusCodeSame(200);
+
+        $client->request('GET', '/api/users/'.$user->getId());
+        $data = $client->getResponse()->toArray();
+        $this->assertEmpty($data['cheeseListings']);
     }
 }

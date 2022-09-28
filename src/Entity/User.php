@@ -88,7 +88,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $username = null;
 
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: CheeseListing::class, cascade: ['persist'], orphanRemoval: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:write'])]
     #[Valid]
     private Collection $cheeseListings;
 
@@ -188,6 +188,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getCheeseListings(): Collection
     {
         return $this->cheeseListings;
+    }
+
+    /**
+     * @return Collection<int, CheeseListing>
+     */
+    #[Groups(['user:read'])]
+    #[SerializedName('cheeseListings')]
+    public function getPublishedCheeseListings(): Collection
+    {
+        return $this->cheeseListings->filter(
+            fn(CheeseListing $cheeseListing) => $cheeseListing->isIsPublished()
+        );
     }
 
     public function addCheeseListing(CheeseListing $cheeseListing): self
